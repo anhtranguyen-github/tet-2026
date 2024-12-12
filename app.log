@@ -1,0 +1,23 @@
+2024-12-12 15:22:38,465 - INFO - Setting up sentiment analysis pipeline
+2024-12-12 15:22:46,373 - INFO - Received prediction request for text: I love this product!
+2024-12-12 15:22:49,307 - INFO - Prediction result: [{'label': 'POS', 'score': 0.9987119436264038}]
+2024-12-12 15:27:43,897 - INFO - Setting up sentiment analysis pipeline
+2024-12-12 15:31:47,542 - INFO - Received batch prediction request for file: test.txt
+2024-12-12 15:31:47,599 - INFO - Performing sentiment analysis on file: test.txt
+2024-12-12 15:31:50,055 - INFO - File processed successfully. Output saved to: ./output_test.txt
+2024-12-12 15:35:04,724 - INFO - Setting up sentiment analysis pipeline
+2024-12-12 15:35:08,823 - INFO - Received batch prediction request for file: test.txt
+2024-12-12 15:35:08,837 - INFO - Performing sentiment analysis on file: test.txt
+2024-12-12 15:35:11,927 - INFO - File processed successfully. Output saved to: ./output_test.csv
+2024-12-12 19:20:45,299 - INFO - Setting up sentiment analysis pipeline
+2024-12-12 19:23:06,409 - INFO - Setting up sentiment analysis pipeline
+2024-12-12 19:23:31,921 - INFO - Received batch prediction request for file: test.txt
+2024-12-12 19:23:31,951 - INFO - Performing sentiment analysis on file: test.txt
+2024-12-12 19:26:33,073 - INFO - Setting up sentiment analysis pipeline
+2024-12-12 19:26:50,707 - INFO - Received batch prediction request for file: test.txt
+2024-12-12 19:26:50,732 - INFO - Performing sentiment analysis on file: test.txt
+2024-12-12 19:26:57,883 - INFO - File processed successfully. Output saved to: ./output_test.csv
+2024-12-12 19:39:32,433 - INFO - Setting up sentiment analysis pipeline
+2024-12-12 19:39:51,465 - INFO - Received batch prediction request for file: test.txt
+2024-12-12 19:39:51,478 - INFO - Performing sentiment analysis on file: test.txt
+2024-12-12 19:39:57,059 - INFO - File processed successfully. Output saved to: ./output_test.csv
