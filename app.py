@@ -1,6 +1,5 @@
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
-from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 from typing import List
 import pandas as pd
 import io
@@ -8,10 +7,9 @@ import os
 import logging
 from collections import Counter
 from fastapi.responses import JSONResponse
+import joblib  # To load the .pkl model file
 
 # Initialize logging
-# Initialize logging to both console and file
-# Initialize logging to both console and file
 logging.basicConfig(level=logging.INFO, 
                     format="%(asctime)s - %(levelname)s - %(message)s",
                     handlers=[
@@ -24,21 +22,33 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI()
 
-model_path = '5CD-AI/Vietnamese-Sentiment-visobert'
+# Load the model from the .pkl file
+model_path = 'trained_model.pkl'  # Specify your .pkl file path here
+logger.info("Loading machine learning model from %s", model_path)
 
-logger.info("Setting up sentiment analysis pipeline")
-sentiment_task = pipeline("sentiment-analysis", model=model_path, tokenizer=model_path, device=0)
+# Load the model using joblib
+try:
+    sentiment_model = joblib.load(model_path)
+    logger.info("Model loaded successfully.")
+except Exception as e:
+    logger.error("Failed to load the model: %s", str(e))
+
 # Request body schema for single text
 class SentimentRequest(BaseModel):
     text: str
+
 @app.post("/predict")
 def predict(request: SentimentRequest):
     logger.info("Received prediction request for text: %s", request.text)
-    result = sentiment_task(request.text)
-    logger.info("Prediction result: %s", result)
-    return {"sentiment": result}
-
-
+    try:
+        # Use the loaded model to make a prediction
+        prediction = sentiment_model.predict([request.text])
+        result = prediction[0]  # Assuming the model returns an array with one element
+        logger.info("Prediction result: %s", result)
+        return {"sentiment": result}
+    except Exception as e:
+        logger.error("Prediction error: %s", str(e))
+        return {"error": "Failed to make prediction"}
 
 @app.post("/predict-batch")
 def predict_batch(file: UploadFile = File(...)):
@@ -74,7 +84,12 @@ def predict_batch(file: UploadFile = File(...)):
 
     # Perform sentiment analysis
     logger.info("Performing sentiment analysis on file: %s", file.filename)
-    df["label"] = df["text"].apply(lambda x: sentiment_task(x)[0]["label"])
+
+    try:
+        df["label"] = df["text"].apply(lambda x: sentiment_model.predict([x])[0])
+    except Exception as e:
+        logger.error("Error in applying prediction: %s", str(e))
+        return {"error": f"Failed to apply predictions: {str(e)}"}
 
     # Calculate label ratios
     label_counts = Counter(df["label"])
