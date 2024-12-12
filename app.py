@@ -26,7 +26,9 @@ app = FastAPI()
 model_path = 'trained_model.pkl'  # Specify your .pkl file path here
 logger.info("Loading machine learning model from %s", model_path)
 
-# Load the model using joblib
+# Initialize the sentiment_model as None
+sentiment_model = None
+
 try:
     sentiment_model = joblib.load(model_path)
     logger.info("Model loaded successfully.")
@@ -39,6 +41,10 @@ class SentimentRequest(BaseModel):
 
 @app.post("/predict")
 def predict(request: SentimentRequest):
+    if sentiment_model is None:
+        logger.error("Prediction failed: Model is not loaded.")
+        return {"error": "Model is not loaded. Please contact the administrator."}
+
     logger.info("Received prediction request for text: %s", request.text)
     try:
         # Use the loaded model to make a prediction
@@ -52,6 +58,10 @@ def predict(request: SentimentRequest):
 
 @app.post("/predict-batch")
 def predict_batch(file: UploadFile = File(...)):
+    if sentiment_model is None:
+        logger.error("Batch prediction failed: Model is not loaded.")
+        return {"error": "Model is not loaded. Please contact the administrator."}
+
     logger.info("Received batch prediction request for file: %s", file.filename)
 
     # Check file type
