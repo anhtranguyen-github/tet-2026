@@ -7,7 +7,8 @@ import pandas as pd
 import joblib  # Prefer joblib for model loading
 import io
 import os
-
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi import BackgroundTasks
 # Custom transformers
 from sklearn.base import BaseEstimator, TransformerMixin
 import re
@@ -113,19 +114,26 @@ def predict(request: SentimentRequest):
         return {"error": "Failed to make prediction"}
 
 
+def delete_file(path: str):
+    """Background task to delete a file after response"""
+    try:
+        os.remove(path)
+        logger.info("Deleted file: %s", path)
+    except Exception as e:
+        logger.error("Failed to delete file: %s. Error: %s", path, str(e))
 
 @app.post("/predict-batch")
-def predict_batch(file: UploadFile = File(...)):
+def predict_batch(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
     if sentiment_model is None:
         logger.error("Batch prediction failed: Model is not loaded.")
-        return {"error": "Model is not loaded. Please contact the administrator."}
+        raise HTTPException(status_code=500, detail="Model is not loaded. Please contact the administrator.")
 
     logger.info("Received batch prediction request for file: %s", file.filename)
 
     # Check file type
     if file.content_type not in ["text/plain", "text/csv"]:
         logger.error("Unsupported file type: %s", file.content_type)
-        return {"error": "Unsupported file type. Please upload a .txt or .csv file."}
+        raise HTTPException(status_code=400, detail="Unsupported file type. Please upload a .txt or .csv file.")
 
     # Read file content
     content = file.file.read()
@@ -141,14 +149,14 @@ def predict_batch(file: UploadFile = File(...)):
             df = pd.read_csv(io.StringIO(content.decode("utf-8")))
             if "text" not in df.columns:
                 logger.error("CSV file missing 'text' column")
-                return {"error": "CSV file must contain a 'text' column."}
+                raise HTTPException(status_code=400, detail="CSV file must contain a 'text' column.")
         except Exception as e:
             logger.exception("Failed to process CSV file")
-            return {"error": f"Failed to process CSV file: {str(e)}"}
+            raise HTTPException(status_code=400, detail=f"Failed to process CSV file: {str(e)}")
 
     else:
         logger.error("Unsupported file extension: %s", file.filename)
-        return {"error": "Unsupported file extension. Only .txt and .csv are allowed."}
+        raise HTTPException(status_code=400, detail="Unsupported file extension. Only .txt and .csv are allowed.")
 
     # Perform sentiment analysis
     logger.info("Performing sentiment analysis on file: %s", file.filename)
@@ -157,7 +165,7 @@ def predict_batch(file: UploadFile = File(...)):
         df["label"] = df["text"].apply(lambda x: sentiment_model.predict([x])[0])
     except Exception as e:
         logger.error("Error in applying prediction: %s", str(e))
-        return {"error": f"Failed to apply predictions: {str(e)}"}
+        raise HTTPException(status_code=500, detail=f"Failed to apply predictions: {str(e)}")
 
     # Calculate label ratios
     label_counts = Counter(df["label"])
@@ -170,10 +178,14 @@ def predict_batch(file: UploadFile = File(...)):
     df.to_csv(output_path, index=False)
 
     logger.info("File processed successfully. Output saved to: %s", output_path)
-    return JSONResponse(
-        {
-            "message": "File processed successfully.",
-            "output_file": output_filename,
-            "label_ratios": label_ratios
-        }
-    )
+
+    # Add file deletion as a background task
+    background_tasks.add_task(delete_file, output_path)
+
+    # Return the file to the user
+    headers = {
+        "X-Label-Ratios": str(label_ratios),  # Send metadata in custom header
+        "Content-Disposition": f"attachment; filename={output_filename}"
+    }
+
+    return FileResponse(output_path, headers=headers, background=background_tasks)
