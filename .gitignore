@@ -10,3 +10,5 @@ myvenv/
 .idea/
 .vscode/
 *.csv
+venv
+*.pkl

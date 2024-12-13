@@ -1,43 +1,100 @@
+import logging
+import traceback
 from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import List
 import pandas as pd
+import joblib  # Prefer joblib for model loading
 import io
 import os
-import logging
+
+# Custom transformers
+from sklearn.base import BaseEstimator, TransformerMixin
+import re
+import string
+import emoji
+import numpy as np
+import scipy.sparse as sp
 from collections import Counter
-from fastapi.responses import JSONResponse
-import joblib  # To load the .pkl model file
+from underthesea import word_tokenize, text_normalize
+import pandas as pd
+import io
+import csv
+from fastapi import UploadFile, File
+from fastapi.responses import StreamingResponse
 
-# Initialize logging
-logging.basicConfig(level=logging.INFO, 
-                    format="%(asctime)s - %(levelname)s - %(message)s",
-                    handlers=[
-                        logging.StreamHandler(),  # Output to console
-                        logging.FileHandler("app.log")  # Log to a file
-                    ])
+# Define your custom transformers
+class RemoveConsecutiveSpaces(BaseEstimator, TransformerMixin):
+    def remove_consecutive_spaces(self, s):
+        return ' '.join(s.split())
 
-logger = logging.getLogger(__name__)
+    def transform(self, x):
+        return [self.remove_consecutive_spaces(s) for s in x]
 
-# Initialize FastAPI app
+    def fit(self, x, y=None):
+        return self
+
+
+class VietnameseTextNormalize(BaseEstimator, TransformerMixin):
+    def transform(self, x):
+        return [text_normalize(s) for s in x]
+
+    def fit(self, x, y=None):
+        return self
+
+
+class VietnameseWordTokenizer(BaseEstimator, TransformerMixin):
+    def transform(self, x):
+        return [' '.join(word_tokenize(s)) for s in x]
+
+    def fit(self, x, y=None):
+        return self
+
+
+class RemoveEmoji(BaseEstimator, TransformerMixin):
+    def remove_emoji(self, s):
+        return ''.join(c for c in s if c not in emoji.EMOJI_DATA)
+
+    def transform(self, x):
+        return [self.remove_emoji(s) for s in x]
+
+    def fit(self, x, y=None):
+        return self
+
+
+# Initialize FastAPI app and logging
 app = FastAPI()
 
-# Load the model from the .pkl file
-model_path = 'trained_model.pkl'  # Specify your .pkl file path here
-logger.info("Loading machine learning model from %s", model_path)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+logger = logging.getLogger(__name__)
 
-# Initialize the sentiment_model as None
+# Globals for custom transformers to avoid serialization issues
+globals().update({
+    "RemoveConsecutiveSpaces": RemoveConsecutiveSpaces,
+    "VietnameseTextNormalize": VietnameseTextNormalize,
+    "VietnameseWordTokenizer": VietnameseWordTokenizer,
+    "RemoveEmoji": RemoveEmoji,
+})
+
+# Load the sentiment model
 sentiment_model = None
-
 try:
+    model_path = "new_model.pkl"  # Update with your model's path
     sentiment_model = joblib.load(model_path)
     logger.info("Model loaded successfully.")
 except Exception as e:
-    logger.error("Failed to load the model: %s", str(e))
+    logger.error("Failed to load the model: %s", e)
+    logger.error(traceback.format_exc())
 
-# Request body schema for single text
+
+# Define schemas
 class SentimentRequest(BaseModel):
     text: str
+
 
 @app.post("/predict")
 def predict(request: SentimentRequest):
@@ -45,16 +102,17 @@ def predict(request: SentimentRequest):
         logger.error("Prediction failed: Model is not loaded.")
         return {"error": "Model is not loaded. Please contact the administrator."}
 
-    logger.info("Received prediction request for text: %s", request.text)
     try:
-        # Use the loaded model to make a prediction
         prediction = sentiment_model.predict([request.text])
-        result = prediction[0]  # Assuming the model returns an array with one element
+        result = prediction[0]
         logger.info("Prediction result: %s", result)
         return {"sentiment": result}
     except Exception as e:
-        logger.error("Prediction error: %s", str(e))
+        logger.error("Prediction error: %s", e)
+        logger.error(traceback.format_exc())
         return {"error": "Failed to make prediction"}
+
+
 
 @app.post("/predict-batch")
 def predict_batch(file: UploadFile = File(...)):
