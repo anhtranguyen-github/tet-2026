@@ -35,20 +35,9 @@ To create a virtual environment using Python 3.11:
 
 ## Step 2: Install Dependencies
 
-Once the virtual environment is activated, you need to install the project dependencies.
 
-1. Ensure that you have a `requirements.txt` file containing the necessary packages:
-   ```
-   fastapi
-   uvicorn
-   pandas
-   joblib
-   scikit-learn
-   underthesea
-   emoji
-   ```
 
-2. Install the dependencies by running:
+1. Install the dependencies by running:
    ```
    pip install -r requirements.txt
    ```
