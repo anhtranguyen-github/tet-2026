@@ -23,6 +23,7 @@ import io
 import csv
 from fastapi import UploadFile, File
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 # Define your custom transformers
 class RemoveConsecutiveSpaces(BaseEstimator, TransformerMixin):
@@ -72,6 +73,15 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:5500"],  # Allow your frontend port
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Globals for custom transformers to avoid serialization issues
 globals().update({

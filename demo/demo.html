@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="demo.css" />
+  </head>
+  <body>
+    <div id="main">
+      <h1>Demo Comment Classifier</h1>
+      
+      <div id="tabs">
+          <button id="text-tab" class="tab active">Text</button>
+          <button id="file-tab" class="tab">File</button>
+      </div>
+
+      <div id="text-input">
+        <label for="comment">Comment</label>
+        <input type="text" placeholder="Enter comment" id="comment">
+      </div>
+      
+      <div id="input-file" style="display: none;">
+        <label for="file-input">Choose file</label>
+        <input type="file" name="" id="file-input" style="display: none;">
+      </div>
+
+      <button id="submit-btn">Submit</button>
+
+      <canvas id="myChart" style="width:100%;max-width:600px;display: none;"></canvas>
+    </div>
+
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+    </script>
+
+
+    <script>
+      
+      var submitType = 'text';
+
+      document.getElementById('text-tab').addEventListener('click', function() {
+        submitType = 'text';
+        document.getElementById('text-tab').classList.add('active');
+        document.getElementById('file-tab').classList.remove('active');
+        document.getElementById('text-input').style.display = 'flex';
+        document.getElementById('input-file').style.display = 'none';
+      });
+
+      document.getElementById('file-tab').addEventListener('click', function() {
+        submitType = 'file';
+        document.getElementById('comment').value = '';
+        document.getElementById('submit-btn').style.cursor = 'not-allowed';
+        document.getElementById('submit-btn').style.backgroundColor = 'lightgray';
+        document.getElementById('submit-btn').style.color = 'black';
+        document.getElementById('file-tab').classList.add('active');
+        document.getElementById('text-tab').classList.remove('active');
+        document.getElementById('text-input').style.display = 'none';
+        document.getElementById('input-file').style.display = 'block';
+        var resultText = document.getElementById('result-text');
+        if (resultText) {
+          resultText.remove();
+        }
+      });
+
+      document.getElementById('comment').addEventListener('input', function() {
+
+        var commentValue = document.getElementById('comment').value;
+        if (commentValue.trim() !== '') {
+          document.getElementById('submit-btn').style.backgroundColor = '#0066cc';
+          document.getElementById('submit-btn').style.color = 'white';
+          document.getElementById('submit-btn').style.cursor = 'pointer';
+        } else {
+          document.getElementById('submit-btn').style.cursor = 'default';
+          document.getElementById('submit-btn').style.backgroundColor = 'lightgray';
+          document.getElementById('submit-btn').style.color = 'black';
+
+        }
+      });
+
+
+      document.getElementById('file-input').addEventListener('change', function() {
+        var fileInput = document.getElementById('file-input').files[0];
+        if (fileInput) {
+          document.getElementById('submit-btn').style.backgroundColor = '#0066cc';
+          document.getElementById('submit-btn').style.color = 'white';
+          document.getElementById('submit-btn').style.cursor = 'pointer';
+        } else {
+          document.getElementById('submit-btn').style.cursor = 'not-allowed';
+          document.getElementById('submit-btn').style.backgroundColor = 'lightgray';
+          document.getElementById('submit-btn').style.color = 'black';
+        }
+        var fileNameText = document.createElement('p');
+        fileNameText.id = 'file-name-text';
+        fileNameText.textContent = fileInput.name;
+        document.getElementById('input-file').appendChild(fileNameText);
+        fileNameText.addEventListener('click', function() {
+          var fileUrl = URL.createObjectURL(fileInput);
+          var a = document.createElement('a');
+          a.href = fileUrl;
+          a.download = fileInput.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(fileUrl);
+        });
+      });
+
+      document.getElementById('submit-btn').addEventListener('click', function() {
+        if (submitType === 'text') {
+          var commentValue = document.getElementById('comment').value;
+          console.log(JSON.stringify({ text: commentValue }));
+          if (commentValue.trim() !== '') {
+            fetch('http://127.0.0.1:8000/predict', {
+              method: 'POST',
+              withCredentials: false,
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ text: commentValue })
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log('Success:', data);
+              var resultText = document.getElementById('result-text');
+              if (resultText) {
+                resultText.remove();
+              }
+              resultText = document.createElement('p');
+              resultText.id = 'result-text';
+
+              resultText.textContent = data.sentiment;
+              document.getElementById('main').appendChild(resultText);
+            })
+            .catch((error) => console.error('Error:', error));
+          } else {
+            alert('Please enter a comment.');
+          }
+        } else if (submitType === 'file') {
+          var fileInput = document.getElementById('file-input').files[0];
+          if (fileInput) {
+            var formData = new FormData();
+            formData.append('file', fileInput);
+
+            fetch('http://127.0.0.1:8000/predict-batch', {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log('Success:', data);
+              const xValues = ["Positive", "Neutral", "Negative"];
+              const yValues = [data.label_ratios.POS, data.label_ratios.NEU, data.label_ratios.NEG];
+              const barColors = ["#2b5797", "#00aba9", "#b91d47"];
+
+              new Chart("myChart", {
+                type: "pie",
+                data: {
+                  labels: xValues,
+                  datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                  }]
+                },
+                options: {
+                  title: {
+                    display: true,
+                    text: "Results"
+                  }
+                }
+              });
+              document.getElementById('myChart').style.display = 'block';
+            })
+            .catch((error) => console.error('Error:', error));
+          } else {
+            alert('Please choose a file.');
+          }
+          
+        }
+      });
+
+    </script>
+
+    
+
+  </body>
+</html>
