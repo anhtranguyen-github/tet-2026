@@ -21,20 +21,7 @@ import joblib  # To load the .pkl model file
 from underthesea import word_tokenize, text_normalize
 
 
-class VietnameseTextNormalize(BaseEstimator, TransformerMixin):
-    def transform(self, x):
-        return [text_normalize(s) for s in x]
-    
-    def fit(self, x, y=None):
-        return self
 
-class VietnameseWordTokenizer(BaseEstimator, TransformerMixin):
-    def transform(self, x):
-        return [' '.join(word_tokenize(s)) for s in x]
-    
-    def fit(self, x, y=None):
-        return self
-    
     
 # Reuse the custom transformers (same as before)
 class RemoveConsecutiveSpaces(BaseEstimator, TransformerMixin):
@@ -69,8 +56,32 @@ class Lowercase(BaseEstimator, TransformerMixin):
         return self
 
 
+class RemoveEmoji(BaseEstimator, TransformerMixin):
+    def remove_emoji(self, s):
+        return ''.join(c for c in s if c not in emoji.EMOJI_DATA)
+
+    def transform(self, x):
+        return [self.remove_emoji(s) for s in x]
+
+    def fit(self, x, y=None):
+        return self
 
 
+
+class VietnameseTextNormalize(BaseEstimator, TransformerMixin):
+    def transform(self, x):
+        return [text_normalize(s) for s in x]
+    
+    def fit(self, x, y=None):
+        return self
+
+class VietnameseWordTokenizer(BaseEstimator, TransformerMixin):
+    def transform(self, x):
+        return [' '.join(word_tokenize(s)) for s in x]
+    
+    def fit(self, x, y=None):
+        return self
+    
 
 class NumWordsCharsFeature(BaseEstimator, TransformerMixin):
     def count_char(self, s):
@@ -107,6 +118,18 @@ class RemoveEmoji(BaseEstimator, TransformerMixin):
 
     def transform(self, x):
         return [self.remove_emoji(s) for s in x]
+
+    def fit(self, x, y=None):
+        return self
+    
+
+
+class RemoveTextEmoticons(BaseEstimator, TransformerMixin):
+    def remove_emoticons(self, s):
+        return re.sub(r'[=:\;][\)\(\]\[]+', '', s)
+
+    def transform(self, x):
+        return [self.remove_emoticons(s) for s in x]
 
     def fit(self, x, y=None):
         return self

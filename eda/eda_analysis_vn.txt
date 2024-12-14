@@ -1,0 +1,26 @@
+
+Kết quả Phân tích Dữ liệu Khám phá (EDA):
+
+1. Phân phối nhãn:
+   - Bộ dữ liệu bao gồm ba nhãn: POS, NEG và NEU.
+   - Tỷ lệ các nhãn trong bộ dữ liệu:
+     * POS (Tích cực): 64.8%
+     * NEG (Tiêu cực): 29.1%
+     * NEU (Trung lập): 6.1%
+   - Nhận xét: Bộ dữ liệu không cân bằng, với tỷ lệ lớn nghiêng về nhãn POS.
+
+2. Phân phối độ dài câu:
+   - Phần lớn các câu có độ dài dưới 20 từ.
+   - Phân phối lệch phải mạnh, cho thấy một số ít câu có độ dài đáng kể.
+   - Cân nhắc cắt ngắn hoặc thêm từ để các câu có độ dài đồng nhất khi áp dụng các mô hình học máy, hoặc cân bằng bộ dữ liệu bằng cách tăng cường các nhãn ít được đại diện.
+
+Khuyến nghị:
+   - Cân bằng bộ dữ liệu (ví dụ: bằng cách tăng cường hoặc giảm bớt dữ liệu).
+   - Giữ nguyên độ dài câu.
+
+3. Word Cloud:
+   - Hầu nết là các từ stopword chiếm đa số -> loại bỏ để tiếp tục bước EDA
+   - NEG (Tiêu cực): Các từ khóa nổi bật: ngu, buồn, đểu, thua, thất, xong, tệ, đau. (Các từ mang nghĩa tiêu cực tập trung vào cảm xúc thất vọng, buồn bã và thất bại.)
+   - NEU (Trung lập): Các từ khóa nổi bật: mua, tên, nhà, độc, nhiều, hàng, tình. (nội dung liên quan đến giao dịch, tài sản hoặc các thông tin thường nhật)
+   - POS (Tích cực): Các từ khóa nổi bật: yêu, hạnh phúc, gia đình, chúc, đẹp, cảm ơn, sức khỏe. (cảm xúc tích cực như tình yêu, gia đình, lời chúc mừng và sức khỏe)
+   
