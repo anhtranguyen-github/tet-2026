@@ -26,6 +26,7 @@
       </div>
 
       <button id="submit-btn">Submit</button>
+      <div id="spinner" class="spinner"></div>
 
       <canvas id="myChart" style="width:100%;max-width:600px;display: none;"></canvas>
     </div>
@@ -39,6 +40,7 @@
     <script>
       
       var submitType = 'text';
+      const spinner = document.getElementById('spinner');
 
       document.getElementById('text-tab').addEventListener('click', function() {
         submitType = 'text';
@@ -110,6 +112,7 @@
       document.getElementById('submit-btn').addEventListener('click', function() {
         if (submitType === 'text') {
           var commentValue = document.getElementById('comment').value;
+          spinner.style.display = 'block';
           console.log(JSON.stringify({ text: commentValue }));
           if (commentValue.trim() !== '') {
             fetch('http://127.0.0.1:8000/predict', {
@@ -131,6 +134,7 @@
               resultText.id = 'result-text';
 
               resultText.textContent = data.sentiment;
+              spinner.style.display = 'none';
               document.getElementById('main').appendChild(resultText);
             })
             .catch((error) => console.error('Error:', error));
@@ -142,6 +146,7 @@
           if (fileInput) {
             var formData = new FormData();
             formData.append('file', fileInput);
+            spinner.style.display = 'block';
 
             fetch('http://127.0.0.1:8000/predict-batch', {
               method: 'POST',
@@ -171,6 +176,17 @@
                 }
               });
               document.getElementById('myChart').style.display = 'block';
+              spinner.style.display = 'none';
+
+              const downloadUrl = `http://127.0.0.1:8000/download/${data.output_file}`;
+              const downloadLink = document.createElement('a');
+              downloadLink.href = downloadUrl;
+              downloadLink.style.display = 'block';
+              downloadLink.download = 'output.csv';
+              downloadLink.textContent = 'Download CSV Results';
+              downloadLink.id = 'download-link';
+              document.getElementById('main').appendChild(downloadLink);
+
             })
             .catch((error) => console.error('Error:', error));
           } else {

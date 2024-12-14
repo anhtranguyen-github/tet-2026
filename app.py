@@ -189,13 +189,29 @@ def predict_batch(file: UploadFile = File(...), background_tasks: BackgroundTask
 
     logger.info("File processed successfully. Output saved to: %s", output_path)
 
-    # Add file deletion as a background task
-    background_tasks.add_task(delete_file, output_path)
+    # # Add file deletion as a background task
+    # background_tasks.add_task(delete_file, output_path)
 
-    # Return the file to the user
-    headers = {
-        "X-Label-Ratios": str(label_ratios),  # Send metadata in custom header
-        "Content-Disposition": f"attachment; filename={output_filename}"
-    }
+    # # Return the file to the user
+    # headers = {
+    #     "X-Label-Ratios": str(label_ratios),  # Send metadata in custom header
+    #     "Content-Disposition": f"attachment; filename={output_filename}"
+    # }
 
-    return FileResponse(output_path, headers=headers, background=background_tasks)
+    # return FileResponse(output_path, headers=headers, background=background_tasks)
+
+    return JSONResponse(
+        {
+            "message": "File processed successfully.",
+            "output_file": output_filename,
+            "label_ratios": label_ratios
+        }
+    )
+
+@app.get("/download/{filename}")
+async def download_file(filename: str, background_tasks: BackgroundTasks = BackgroundTasks()):
+    file_path = os.path.join("./", filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+    background_tasks.add_task(delete_file, file_path)
+    return FileResponse(path=file_path, filename=filename)
