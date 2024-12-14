@@ -1,0 +1,32 @@
+1. **Đọc file CSV**:
+   - Đọc tệp `comments.csv` vào một DataFrame với cột duy nhất có tên là `Comment`. Bỏ qua các dòng trống hoặc dòng có lỗi trong tệp.
+
+2. **Xử lý dữ liệu thiếu hoặc trống**:
+   - Loại bỏ các dòng có giá trị `NaN` trong cột `Comment`.
+   - Loại bỏ các dòng có giá trị là chuỗi trống hoặc chỉ chứa khoảng trắng.
+
+3. **Định nghĩa hàm làm sạch dữ liệu**:
+   - Hàm làm sạch sẽ loại bỏ các comment nếu chúng chứa:
+     - Liên kết URL (http hoặc https).
+     - Số điện thoại (chuỗi số từ 10 chữ số trở lên hoặc theo các mẫu phổ biến).
+     - Từ "sao kê" lặp lại.
+     - Chuỗi 4 chữ số trở lên.
+     - Dấu ngoặc kép trống `""`.
+
+4. **Áp dụng hàm làm sạch**:
+   - Áp dụng hàm làm sạch cho mỗi dòng trong cột `Comment` và lưu kết quả vào cột `Cleaned_Comment`.
+
+5. **Loại bỏ các dòng chứa giá trị `None` trong cột `Cleaned_Comment`**:
+   - Loại bỏ các dòng có giá trị `None` sau khi làm sạch.
+
+6. **Loại bỏ các comment có ít hơn 4 từ**:
+   - Loại bỏ các comment có ít hơn 4 từ sau khi làm sạch.
+
+7. **Loại bỏ các dòng trùng lặp**:
+   - Loại bỏ các dòng có comment đã bị trùng lặp.
+
+8. **Lưu kết quả vào file CSV mới**:
+   - Lưu các comment đã được làm sạch vào tệp `cleaned_comments.csv`.
+
+9. **Hiển thị các dòng đầu tiên của DataFrame đã được làm sạch**:
+   - In ra 5 dòng đầu tiên của DataFrame sau khi làm sạch.

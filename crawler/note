@@ -1,0 +1,39 @@
+1. **Đọc dữ liệu từ tệp CSV**:
+   - Đọc các dữ liệu từ tệp `posts.csv` và lưu vào một danh sách.
+   - Đọc từng dòng của tệp, loại bỏ dấu ngoặc và thêm chuỗi vào danh sách.
+
+2. **Ghi dữ liệu vào tệp văn bản**:
+   - Ghi chuỗi vào tệp văn bản với mỗi dòng kết thúc bằng ký tự xuống dòng.
+
+3. **Khởi tạo trình duyệt Selenium**:
+   - Thiết lập đường dẫn đến `chromedriver` và cấu hình các tuỳ chọn cho trình duyệt Chrome (ví dụ: không hiển thị thông báo, tối ưu hóa bộ nhớ, tắt các tính năng không cần thiết).
+
+4. **Kiểm tra trạng thái hoạt động của clone**:
+   - Truy cập trang `mbasic.facebook.com`, kiểm tra nếu có các liên kết tới hộp thư (messages) để xác định nếu phiên bản trình duyệt đang hoạt động.
+
+5. **Chuyển đổi cookie**:
+   - Chuyển đổi cookie được cung cấp thành một định dạng phù hợp cho việc đăng nhập vào Facebook.
+
+6. **Kiểm tra tình trạng cookie**:
+   - Dùng cookie đã chuyển đổi để đăng nhập vào Facebook và kiểm tra nếu phiên làm việc đang hoạt động.
+
+7. **Đăng nhập vào Facebook bằng cookie**:
+   - Chạy một đoạn script JavaScript trong trình duyệt để thiết lập cookie và chuyển hướng đến trang `mbasic.facebook.com` nhằm đăng nhập.
+
+8. **Đăng xuất cookie**:
+   - Chạy một đoạn script JavaScript trong trình duyệt để xóa tất cả các cookie hiện tại của miền Facebook và chuyển hướng về trang chủ.
+
+9. **Lấy nội dung bình luận**:
+   - Truy xuất các liên kết bình luận từ trang web và lưu lại các bình luận vào tệp `comments.csv`.
+
+10. **Lấy số lượng bình luận**:
+    - Truy cập trang một bài viết cụ thể trên Facebook và lấy các bình luận. Tiếp tục lấy bình luận cho đến khi đủ số lượng yêu cầu.
+
+11. **Lấy ID bài viết từ trang fanpage**:
+    - Duyệt qua tất cả các bài viết trên một trang fanpage và lấy ID của các bài viết chưa có trong tệp `posts.csv`.
+
+12. **Lấy số lượng bài viết từ một fanpage**:
+    - Truy cập fanpage và lấy ID của bài viết, lưu lại vào tệp `posts.csv` cho đến khi đạt đủ số lượng bài viết yêu cầu.
+
+13. **Chạy trình duyệt với cookie đã được kiểm tra**:
+    - Khởi tạo trình duyệt, kiểm tra tình trạng hoạt động của cookie, và nếu thành công, tiếp tục lấy ID bài viết và bình luận từ các bài viết trên fanpage.

@@ -1,0 +1,45 @@
+
+Phân tích EDA cho bộ dữ liệu ba nhãn dựa trên Word Cloud:
+
+---
+
+### 1. **NEG (Nhãn Tiêu Cực)**
+- **Từ nổi bật**:
+  - "tạo", "đéo", "buồn", "ngu", "mất", "đừng", "dừng", "nghèo", "chán", "xong".
+- **Đặc điểm**:
+  - Các từ thể hiện sự bức xúc, cảm xúc tiêu cực hoặc cảm giác khó chịu.
+  - Từ như *"ngu"*, *"đéo"* mang tính chất nặng nề, không chính thống.
+  - Các từ như *"mất"* (mất mát), *"buồn"* (buồn bã) thể hiện sự đau khổ, chán nản.
+
+**Kết luận**: Nhãn này thể hiện nội dung tiêu cực, mang cảm xúc khó chịu hoặc thất vọng.
+
+---
+
+### 2. **NEU (Nhãn Trung Tính)**
+- **Từ nổi bật**:
+  - "tiền", "nhà", "độc", "đơn", "bình", "thân", "giá", "mua", "nhiều".
+- **Đặc điểm**:
+  - Các từ mang tính chất giao dịch, thực tế như *"tiền"* (tiền bạc), *"mua"* (mua bán), *"nhà"* (nhà cửa).
+  - Các từ như *"đơn"* và *"bình"* mang ý nghĩa trung tính, đơn giản.
+  - Một số từ như *"giá"* (giá cả) thể hiện tính chất đánh giá hoặc mua bán.
+
+**Kết luận**: Nhãn này thể hiện nội dung trung tính, thực tế, ít thiên về cảm xúc.
+
+---
+
+### 3. **POS (Nhãn Tích Cực)**
+- **Từ nổi bật**:
+  - "yêu", "nhà", "hạnh phúc", "gia đình", "đẹp", "chúc", "sức khỏe", "cảm ơn", "tuyệt vời".
+- **Đặc điểm**:
+  - Các từ thể hiện cảm xúc tích cực như tình yêu (*"yêu"*), hạnh phúc (*"hạnh phúc"*), biết ơn (*"cảm ơn"*).
+  - Các từ liên quan đến gia đình như *"gia đình"* và *"nhà"* thể hiện sự ấm áp, gắn kết.
+  - Tính từ tích cực như *"đẹp"* và *"tuyệt vời"* xuất hiện nổi bật.
+
+**Kết luận**: Nhãn này thể hiện nội dung mang cảm xúc tích cực, niềm vui và sự biết ơn.
+
+---
+
+### Tổng Kết:
+1. **NEG**: Mang cảm xúc tiêu cực, thể hiện sự bức xúc và khó chịu.
+2. **NEU**: Mang tính chất trung tính, giao dịch và thực tế.
+3. **POS**: Mang cảm xúc tích cực, thể hiện niềm vui, tình yêu và sự biết ơn.
